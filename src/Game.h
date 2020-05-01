@@ -6,23 +6,26 @@
 //  Copyright © 2020 Juan Souza. All rights reserved.
 //
 
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include "Entity.h"
+#include "Component.h"
+#include "EntityManager.h"
 
 class Game{
 private:
     bool isRunning;
     SDL_Window *window;
-    SDL_Renderer *renderer;
 public:
     Game();
     ~Game();
     int ticksLastFrame;
     bool IsRunning() const;
+    static SDL_Renderer *renderer;
+    void LoadLevel(int levelNumber);
     void initialize(int width, int height);
     void ProcessInput();
     void Update();
@@ -30,5 +33,5 @@ public:
     void Destroy();
 };
 
-#endif
+
 /* Game_h */
