@@ -15,6 +15,8 @@
 #include "Component.h"
 #include "EntityManager.h"
 
+class AssetManager;
+
 class Game{
 private:
     bool isRunning;
@@ -25,6 +27,7 @@ public:
     int ticksLastFrame;
     bool IsRunning() const;
     static SDL_Renderer *renderer;
+    static AssetManager* assetManager;
     void LoadLevel(int levelNumber);
     void initialize(int width, int height);
     void ProcessInput();
