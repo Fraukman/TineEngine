@@ -13,10 +13,12 @@
 #include "../lib/glm/glm.hpp"
 #include "./Components/TransformComponent.h"
 #include "./Components/SpriteComponent.h"
+#include "./Components/KeyboardControlComponent.h"
 
 EntityManager manager;
 AssetManager* Game::assetManager = new AssetManager(&manager);
 SDL_Renderer* Game::renderer;
+SDL_Event Game::event;
 
 Game::Game(){
     this->isRunning = false;
@@ -81,11 +83,11 @@ void Game::LoadLevel(int levelNumber){
     Entity& chopperEntity(manager.AddEntity("chopper"));
     chopperEntity.AddComponent<TransformComponent>(240,106,0,0,32,32,1);
     chopperEntity.AddComponent<SpriteComponent>("chopper-image",2,90,true,false);
+    chopperEntity.AddComponent<KeyboardControlComponent>("up","right","down","left","space");
     
 }
 
 void Game::ProcessInput(){
-    SDL_Event event;
     SDL_PollEvent(&event);
     
     switch (event.type){
