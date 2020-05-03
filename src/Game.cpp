@@ -11,6 +11,7 @@
 #include "./Game.h"
 #include "./AssetManager.h"
 #include "../lib/glm/glm.hpp"
+#include "./Map.h"
 #include "./Components/TransformComponent.h"
 #include "./Components/SpriteComponent.h"
 #include "./Components/KeyboardControlComponent.h"
@@ -19,6 +20,7 @@ EntityManager manager;
 AssetManager* Game::assetManager = new AssetManager(&manager);
 SDL_Renderer* Game::renderer;
 SDL_Event Game::event;
+Map* map;
 
 Game::Game(){
     this->isRunning = false;
@@ -74,11 +76,15 @@ void Game::LoadLevel(int levelNumber){
     //Start inclunding new asses to the assetmanager list
     assetManager->AddTexture("tank-Image", std::string("./assets/images/tank-big-right.png").c_str());
     assetManager->AddTexture("chopper-image", std::string("./assets/images/chopper-spritesheet.png").c_str());
+    assetManager->AddTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
+
+    map = new Map("jungle-tiletexture", 2 , 32);
+    map->LoadMap("./assets/tilemaps/jungle.map", 20,25);
 
     //Start inclunding entities and also components to them
-//    Entity& tankEntity(manager.AddEntity("tank"));
-//    tankEntity.AddComponent<TransformComponent>(32,32,0,0,32,32,1);
-//    tankEntity.AddComponent<SpriteComponent>("tank-Image");
+   Entity& tankEntity(manager.AddEntity("tank"));
+   tankEntity.AddComponent<TransformComponent>(32,32,10,10,32,32,2);
+   tankEntity.AddComponent<SpriteComponent>("tank-Image");
     
     Entity& chopperEntity(manager.AddEntity("chopper"));
     chopperEntity.AddComponent<TransformComponent>(240,106,0,0,32,32,1);

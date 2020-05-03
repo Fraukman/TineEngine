@@ -91,7 +91,7 @@ public:
                 transform->velocity.x = 0;
             }
             if (keyCode.compare(downKey) == 0){
-                transform->velocity.x = 0;
+                transform->velocity.y = 0;
             }
             if (keyCode.compare(leftKey) == 0){
                 transform->velocity.x = 0;
