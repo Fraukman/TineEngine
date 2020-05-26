@@ -49,6 +49,11 @@ public:
     }
 
     template <typename T>
+    bool HasComponent() const {
+        return componentTypeMap.count(&typeid(T));
+    }
+
+    template <typename T>
     T* GetComponent() {
         return static_cast<T*>(componentTypeMap[&typeid(T)]);
     }

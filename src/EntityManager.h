@@ -25,7 +25,8 @@ public:
     std::vector<Entity*> GetEntities() const;
     std::vector<Entity*> GetEntitiesByLayer(LayerType layer) const;
     Entity& AddEntity(std::string entityName, LayerType layer);
-    
+    CollisionType CheckEntityCollisions() const;
+    void DestroyInactiveEntities();
 };
 
 #endif /* EntityManager_h */

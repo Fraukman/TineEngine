@@ -21,6 +21,7 @@ class Game{
 private:
     bool isRunning;
     SDL_Window *window;
+    
 public:
     Game();
     ~Game();
@@ -37,6 +38,12 @@ public:
     void Render();
     void Destroy();
     void HandleCameraMovement();
+    void CheckCollisions();
+    
+    void ProcessGameOver();
+    void ProcessNextLevel();
+
+    bool debugMode = false;
 };
 
 

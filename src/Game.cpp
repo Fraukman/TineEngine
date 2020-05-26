@@ -15,6 +15,11 @@
 #include "./Components/TransformComponent.h"
 #include "./Components/SpriteComponent.h"
 #include "./Components/KeyboardControlComponent.h"
+#include "./Components/ColliderComponent.h"
+#include "./Components/TextLabelComponent.h"
+#include "./Components/ProjectileEmitter.h"
+
+
 
 EntityManager manager;
 AssetManager* Game::assetManager = new AssetManager(&manager);
@@ -39,6 +44,10 @@ bool Game::IsRunning() const{
 void Game::initialize(int width, int height){
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
         std::cerr<<"Error initialing SDL." << std::endl;
+        return;
+    }
+    if(TTF_Init() != 0){
+        std::cerr<<"Error initializing SDL TTF"<<std::endl;
         return;
     }
     window = SDL_CreateWindow(NULL,
@@ -81,6 +90,10 @@ void Game::LoadLevel(int levelNumber){
     assetManager->AddTexture("chopper-image", std::string("./assets/images/chopper-spritesheet.png").c_str());
     assetManager->AddTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
     assetManager->AddTexture("radar-image",std::string("./assets/images/radar.png").c_str());
+    assetManager->AddTexture("collision-texture",std::string("./assets/images/collision-texture.png").c_str());
+    assetManager->AddTexture("heliport-image",std::string("./assets/images/heliport.png").c_str());
+    assetManager->AddTexture("projectile-image",std::string("./assets/images/bullet-enemy.png").c_str());
+    assetManager->AddFont("charriot-font",std::string("./assets/fonts/charriot.ttf").c_str(),14);
 
     map = new Map("jungle-tiletexture", 2 , 32);
     map->LoadMap("./assets/tilemaps/jungle.map", 20,25);
@@ -90,14 +103,30 @@ void Game::LoadLevel(int levelNumber){
     player.AddComponent<TransformComponent>(240,106,0,0,32,32,1);
     player.AddComponent<SpriteComponent>("chopper-image",2,90,true,false);
     player.AddComponent<KeyboardControlComponent>("up","right","down","left","space");
+    player.AddComponent<ColliderComponent>("PLAYER", 240,106,32,32,"collision-texture");
 
     Entity& tankEntity(manager.AddEntity("tank",ENEMY_LAYER));
-   tankEntity.AddComponent<TransformComponent>(150,495,5,0,32,32,1);
-   tankEntity.AddComponent<SpriteComponent>("tank-image");
+    tankEntity.AddComponent<TransformComponent>(150,495,5,0,32,32,1);
+    tankEntity.AddComponent<SpriteComponent>("tank-image");
+    tankEntity.AddComponent<ColliderComponent>("ENEMY", 150,495,32,32,"collision-texture");
+    
+    Entity& projectile(manager.AddEntity("projectile",PROJECTILE_LAYER));
+    projectile.AddComponent<TransformComponent>(150+16,495+16,0,0,4,4,1);
+    projectile.AddComponent<SpriteComponent>("projectile-image");
+    projectile.AddComponent<ColliderComponent>("PROJECTILE", 150+16,495+16,4,4,"collision-texture");
+    projectile .AddComponent<ProjectileEmitter>(50,270,200,true);
+
+    Entity& heliport(manager.AddEntity("Heliport", OBSTACLE_LAYER));
+    heliport.AddComponent<TransformComponent>(470,420,0,0,32,32,1);
+    heliport.AddComponent<SpriteComponent>("heliport-image");
+    heliport.AddComponent<ColliderComponent>("LEVEL_COMPLETE",470,420,32,32,"collision-texture");
     
     Entity& radarEntity(manager.AddEntity("radar",UI_LAYER));
     radarEntity.AddComponent<TransformComponent>(720,15,0,0,64,64,1);
     radarEntity.AddComponent<SpriteComponent>("radar-image",8,150,false,true);
+
+    Entity& labelLevelName(manager.AddEntity("LabelLevelName",UI_LAYER));
+    labelLevelName.AddComponent<TextLabelComponent>(10,10,"First Level...","charriot-font",WHITE_COLOR);
 
 }
 
@@ -113,6 +142,11 @@ void Game::ProcessInput(){
             if(event.key.keysym.sym == SDLK_ESCAPE){
                 isRunning = false;
             }
+
+            if (event.key.keysym.sym == SDLK_F1){
+                debugMode = !debugMode;
+            }
+            
         }
         default:{
             break;
@@ -137,8 +171,9 @@ void Game::Update(){
     manager.Update(deltaTime);
     
     HandleCameraMovement();
-    
+    CheckCollisions();
 }
+
 
 void Game::HandleCameraMovement(){
     TransformComponent* mainPlayerTransform = player.GetComponent<TransformComponent>();
@@ -150,6 +185,30 @@ void Game::HandleCameraMovement(){
     camera.x = camera.x > camera.w ? camera.w : camera.x;
     camera.y = camera.y > camera.h ? camera.h : camera.y;
 
+}
+
+void Game::CheckCollisions(){
+    CollisionType collisionType = manager.CheckEntityCollisions();
+    if(collisionType == PLAYER_ENEMY_COLLISION){
+
+        ProcessGameOver();
+    }
+    if(collisionType == PLAYER_LEVEL_COMPLETE_COLLISION){
+        ProcessNextLevel();
+    }
+    if(collisionType == PLAYER_PROJECTILE_COLLISION){
+        ProcessGameOver();
+    }
+}
+
+void Game::ProcessGameOver(){
+    std::cout<<"Game Over"<<std::endl;
+    isRunning = false;
+}
+
+void Game::ProcessNextLevel(){
+    std::cout<<"Next Level"<<std::endl;
+    isRunning = false;
 }
 
 void Game::Render(){
